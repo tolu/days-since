@@ -1,9 +1,13 @@
 <script>
 	import {
-		differenceInCalendarMonths,
-		differenceInCalendarYears,
-		differenceInCalendarWeeks,
-		differenceInCalendarDays,
+		differenceInYears,
+		differenceInMonths,
+		differenceInWeeks,
+		differenceInDays,
+		isBefore,
+		addYears,
+		addMonths,
+		addWeeks,
 	} from 'date-fns';
 	let name;
 	let date;
@@ -13,26 +17,54 @@
 			date: new Date(date),
 		}
 	});
-	function handleAddDate(){
-		dates = [...dates, {date: new Date(date), name}];
+	function save() {
 		localStorage.setItem('saved_dates', JSON.stringify(dates));
+	}
+	function handleAddDate(){
+		if (!name || !date) return;
+		dates = [...dates, {date: new Date(date), name}];
+		date = null;
+		name = '';
+		save();
+	}
+	function today() {
+		return new Date((new Date()).toISOString().substr(0, 10));
+	}
+	function removeDate(index) {
+		dates = [...dates.filter(d => d !== dates[index])];
+		save();
+	}
+	function getHumanDateDiff(date) {
+		const isPastDate = isBefore(date, today());
+		const suffix = isPastDate ? 'ago' : 'left';
+
+		const weekDiff = differenceInWeeks(today(), date);
+		if (Math.abs(weekDiff) < 8) {
+			const days = differenceInDays(today(), addWeeks(date, weekDiff))
+			return `${Math.abs(weekDiff)} weeks and ${Math.abs(days)} days ${suffix}`;
+		}
+		const yearDiff = differenceInYears(today(), date);
+		const dateYearCorrected = addYears(date, yearDiff);
+		const monthDiff = differenceInMonths(today(), dateYearCorrected);
+		const dateMonthCorrected = addMonths(dateYearCorrected, monthDiff)
+		const dayDiff = differenceInDays(today(), dateMonthCorrected);
+		return `${Math.abs(yearDiff)} years and ${Math.abs(monthDiff)} months and ${Math.abs(dayDiff)} days ${suffix}`.replace(/0 years and |0 months and /, '');
 	}
 </script>
 
 <style>
-	h1 {
-		color: purple;
-	}
-	input {
-		display: block;
-	}
+	h1 { color: purple }
+	input { display: block }
 	ul {
 		display: flex;
 		list-style-type: none;
 		padding: 0;
 	}
 	li {
-		flex-grow: 1;
+		flex-basis: 33%;
+		border-radius: 5px;
+		border: 1px solid olivedrab;
+		padding: 5px;
 	}
 </style>
 
@@ -42,13 +74,11 @@
 <input type="text" id="name" bind:value={name}>
 <button on:click="{handleAddDate}">Add date</button>
 <ul>
-{#each dates as item }
+{#each dates as item, index }
 	<li>
 		<h4>{item.name}</h4>
-		<p>Years { differenceInCalendarYears(new Date(), item.date) }</p>
-		<p>Months { differenceInCalendarMonths(new Date(), item.date) }</p>
-		<p>Weeks { differenceInCalendarWeeks(new Date(), item.date) }</p>
-		<p>Days { differenceInCalendarDays(new Date(), item.date) }</p>
+		<p>{ getHumanDateDiff(item.date) }</p>
+		<button title="remove" on:click={() => removeDate(index)}>🗑</button>
 	</li>
 {/each}
 </ul>
