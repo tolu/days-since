@@ -1,14 +1,5 @@
 <script>
-	import {
-		differenceInYears,
-		differenceInMonths,
-		differenceInWeeks,
-		differenceInDays,
-		isBefore,
-		addYears,
-		addMonths,
-		addWeeks,
-	} from 'date-fns';
+	import Day from './Day.svelte';
 	let name;
 	let date;
 	let dates = JSON.parse(localStorage.getItem('saved_dates') || '[]').map(({date, name}) => {
@@ -27,28 +18,9 @@
 		name = '';
 		save();
 	}
-	function today() {
-		return new Date((new Date()).toISOString().substr(0, 10));
-	}
 	function removeDate(index) {
 		dates = [...dates.filter(d => d !== dates[index])];
 		save();
-	}
-	function getHumanDateDiff(date) {
-		const isPastDate = isBefore(date, today());
-		const suffix = isPastDate ? 'ago' : 'left';
-
-		const weekDiff = differenceInWeeks(today(), date);
-		if (Math.abs(weekDiff) < 8) {
-			const days = differenceInDays(today(), addWeeks(date, weekDiff))
-			return `${Math.abs(weekDiff)} weeks and ${Math.abs(days)} days ${suffix}`;
-		}
-		const yearDiff = differenceInYears(today(), date);
-		const dateYearCorrected = addYears(date, yearDiff);
-		const monthDiff = differenceInMonths(today(), dateYearCorrected);
-		const dateMonthCorrected = addMonths(dateYearCorrected, monthDiff)
-		const dayDiff = differenceInDays(today(), dateMonthCorrected);
-		return `${Math.abs(yearDiff)} years and ${Math.abs(monthDiff)} months and ${Math.abs(dayDiff)} days ${suffix}`.replace(/0 years and |0 months and /, '');
 	}
 </script>
 
@@ -60,12 +32,6 @@
 		list-style-type: none;
 		padding: 0;
 	}
-	li {
-		flex-basis: 33%;
-		border-radius: 5px;
-		border: 1px solid olivedrab;
-		padding: 5px;
-	}
 </style>
 
 <h1>Days since anything</h1>
@@ -75,10 +41,6 @@
 <button on:click="{handleAddDate}">Add date</button>
 <ul>
 {#each dates as item, index }
-	<li>
-		<h4>{item.name}</h4>
-		<p>{ getHumanDateDiff(item.date) }</p>
-		<button title="remove" on:click={() => removeDate(index)}>🗑</button>
-	</li>
+	<Day {...item } removeDate={() => removeDate(index)}></Day>
 {/each}
 </ul>
