@@ -1,12 +1,15 @@
 <script>
   import {getHumanDateDiff} from './date-utils.js';
+  import {format} from 'date-fns';
   export let name;
   export let date;
   export let removeDate;
 </script>
 
 <li>
-  <h4>{name}</h4>
+  <small>{ format(date, 'yyyy-MM-dd') }</small>
+  <br />
+  <strong>{name}</strong>
   <p>{ getHumanDateDiff(date) }</p>
   <button title="remove" on:click={() => removeDate()}>🗑</button>
 </li>
