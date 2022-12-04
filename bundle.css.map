@@ -1,0 +1,14 @@
+{
+  "version": 3,
+  "file": "bundle.css",
+  "sources": [
+    "../App.svelte",
+    "../Day.svelte"
+  ],
+  "sourcesContent": [
+    "<script>\n\timport Day from './Day.svelte';\n\tlet name;\n\tlet date;\n\tlet dates = JSON.parse(localStorage.getItem('saved_dates') || '[]').map(({date, name}) => {\n\t\treturn {\n\t\t\tname,\n\t\t\tdate: new Date(date),\n\t\t}\n\t});\n\tfunction save() {\n\t\tlocalStorage.setItem('saved_dates', JSON.stringify(dates));\n\t}\n\tfunction handleAddDate(){\n\t\tif (!name || !date) return;\n\t\tdates = [...dates, {date: new Date(date), name}];\n\t\tdate = null;\n\t\tname = '';\n\t\tsave();\n\t}\n\tfunction removeDate(index) {\n\t\tdates = [...dates.filter(d => d !== dates[index])];\n\t\tsave();\n\t}\n</script>\n\n<style>\n\th1 { color: purple }\n\tinput { display: block }\n\tul {\n\t\tdisplay: flex;\n\t\tlist-style-type: none;\n\t\tpadding: 0;\n\t}\n</style>\n\n<h1>Days since anything</h1>\n\n<input type=\"date\" id=\"date\" bind:value={date}>\n<input type=\"text\" id=\"name\" bind:value={name}>\n<button on:click=\"{handleAddDate}\">Add date</button>\n<ul>\n{#each dates as item, index }\n\t<Day {...item } removeDate={() => removeDate(index)}></Day>\n{/each}\n</ul>",
+    "<script>\n  import {getHumanDateDiff} from './date-utils.js';\n  import {format} from 'date-fns';\n  export let name;\n  export let date;\n  export let removeDate;\n</script>\n\n<li>\n  <small>{ format(date, 'yyyy-MM-dd') }</small>\n  <br />\n  <strong>{name}</strong>\n  <p>{ getHumanDateDiff(date) }</p>\n  <button title=\"remove\" on:click={() => removeDate()}>🗑</button>\n</li>\n\n<style>\n\tli {\n\t\tflex-basis: 33%;\n\t\tborder-radius: 5px;\n\t\tborder: 1px solid olivedrab;\n\t\tpadding: 5px;\n\t}\n</style>"
+  ],
+  "names": [],
+  "mappings": "AA2BC,EAAE,cAAC,CAAC,AAAC,KAAK,CAAE,MAAM,CAAC,CAAC,AACpB,KAAK,cAAC,CAAC,AAAC,OAAO,CAAE,KAAK,CAAC,CAAC,AACxB,EAAE,cAAC,CAAC,AACH,OAAO,CAAE,IAAI,CACb,eAAe,CAAE,IAAI,CACrB,OAAO,CAAE,CAAC,AACX,CAAC;AChBD,EAAE,cAAC,CAAC,AACH,UAAU,CAAE,GAAG,CACf,aAAa,CAAE,GAAG,CAClB,MAAM,CAAE,GAAG,CAAC,KAAK,CAAC,SAAS,CAC3B,OAAO,CAAE,GAAG,AACb,CAAC"
+}
